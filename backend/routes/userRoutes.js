@@ -14,7 +14,7 @@ import multer from 'multer'
 
 const router = express.Router()
 
-router.use(verifyJWT)
+// router.use(verifyJWT)
 
 router.get('/', getAllUsers)
 
