@@ -6,43 +6,59 @@ import {
 import { useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSave, faTrashCan } from '@fortawesome/free-solid-svg-icons'
+import useAuth from '../../hooks/useAuth'
 
-const EditMessageForm = ({ message, users }) => {
+const EditMessageForm = ({ message, users, id, setTransition }) => {
   const navigate = useNavigate()
-  //-----------------------------------------------------
+  const { isPlayer, isCoach } = useAuth()
+
+  // STATE
+  const [title, setTitle] = useState(message.title)
+  const [text, setText] = useState(message.text)
+  const [read, setRead] = useState(message.read)
+  const [userId, setUserId] = useState(message.user)
+
+  // STATE HANDLERS
+  const onTextChanged = e => setText(e.target.value)
+  const onReadChanged = () => setRead(prev => !prev)
+  const onUserIdChanged = e => setUserId(e.target.value)
+
+  // RTK Actions ---------------------------------------------
   const [updateMessage, { isLoading, isSuccess, error }] =
     useUpdateMessageMutation()
-  //-----------------------------------------------------
+  //
   const [
     deleteMessage,
     { isSuccess: isDelSuccess, isError: isDelError, error: delError },
   ] = useDeleteMessageMutation()
 
-  //-----------------------------------------------------
-  const [title, setTitle] = useState(message.title)
-  const [text, setText] = useState(message.text)
-  const [read, setRead] = useState(message.read)
-  const [userId, setUserId] = useState(message.user)
-  //-----------------------------------------------------
+  //
   useEffect(() => {
     if (isSuccess || isDelSuccess) {
+      setTransition(true)
+      setTimeout(() => {
+        setTransition(false)
+        navigate(`/dash/messages/${id}`)
+      })
       setTitle('')
       setText('')
       setUserId('')
-      navigate('/dash/messages')
     }
   }, [isSuccess, isDelSuccess, navigate])
-
-  //-----------------------------------------------------
-  const onTitleChanged = e => setTitle(e.target.value)
-  const onTextChanged = e => setText(e.target.value)
-  const onReadChanged = () => setRead(prev => !prev)
-  const onUserIdChanged = e => setUserId(e.target.value)
-
-  //-----------------------------------------------------
+  //
   const canSave = [title, text, userId].every(Boolean) && !isLoading
 
+  // DELETE MESSAGE ------------------------------------
+  const onDeleteMessageClicked = async e => {
+    e.preventDefault()
+    setTransition(true)
+    await deleteMessage({ id: message.id })
+    setTransition(false)
+    navigate('/dash/messages')
+  }
+  // SAVE MESSAGE --------------------------------------
   const onSaveMessageClicked = async e => {
+    e.preventDefault()
     if (canSave) {
       await updateMessage({
         id: message.id,
@@ -54,27 +70,20 @@ const EditMessageForm = ({ message, users }) => {
     }
   }
 
-  const onDeleteMessageClicked = async () => {
-    await deleteMessage({ id: message.id })
+  // Delete Button
+  let deleteButton = null
+  if (isCoach || isPlayer) {
+    deleteButton = (
+      <button
+        className="btn bg-blue-500 text-white rounded.lg w-[20%] shadow-md shadow-gray-300 rounded-md p-1"
+        onClick={onDeleteMessageClicked}
+      >
+        DELETE <FontAwesomeIcon icon={faTrashCan} />
+      </button>
+    )
   }
-  //-----------------------------------------------------
-  const created = new Date(message.createdAt).toLocaleString('en-US', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric',
-  })
-  const updated = new Date(message.updatedAt).toLocaleString('en-US', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric',
-  })
-  //-----------------------------------------------------
+
+  // User options -------------------------------------------
   const options = users.map(user => {
     return (
       <option key={user.id} value={user.id}>
@@ -83,50 +92,23 @@ const EditMessageForm = ({ message, users }) => {
       </option>
     )
   })
+
+  // CONTENT
   const content = (
     <>
       <form
-        className="flex flex-col gap-2 shadow-md shadow-gray-400 p-3 w-[50%]"
+        className="flex flex-col gap-2 bg-white rounded-lg w-[100%] p-8 text-gray-500"
         onSubmit={e => e.preventDefault()}
       >
         <div>
-          <h2>Edit Message</h2>
-          <div>
-            <button
-              className="btn bg-blue-500 text-white rounded.lg w-[20%] shadow-md shadow-gray-300 rounded-md p-1"
-              title="Save"
-              onClick={onSaveMessageClicked}
-              // disabled={!canSave}
-            >
-              <FontAwesomeIcon icon={faSave} />
-            </button>
-            <button
-              className="btn bg-blue-500 text-white rounded.lg w-[20%] shadow-md shadow-gray-300 rounded-md p-1"
-              title="Delete"
-              onClick={onDeleteMessageClicked}
-            >
-              <FontAwesomeIcon icon={faTrashCan} />
-            </button>
-          </div>
+          {/* <h2>Edit Message</h2> */}
+          <div></div>
         </div>
-        <label className="text-sm" htmlFor="username">
-          Title:
-        </label>
-        <input
-          className="p-1 bg-white rounded-md"
-          id="username"
-          name="username"
-          type="text"
-          autoComplete="off"
-          value={title}
-          onChange={onTitleChanged}
-        />
-
         <label className="text-sm" htmlFor="password">
           Content:
         </label>
         <textarea
-          className="p-1 bg-white rounded-md"
+          className="p-2 bg-white rounded-md border-2"
           id="text"
           name="text"
           type="text"
@@ -137,7 +119,7 @@ const EditMessageForm = ({ message, users }) => {
         <label className="text-sm" htmlFor="message-read">
           Read:
           <input
-            className="p-1 bg-white rounded-md"
+            className="p-2 bg-white rounded-md border-2"
             id="message-read"
             name="message-read"
             type="checkbox"
@@ -150,7 +132,7 @@ const EditMessageForm = ({ message, users }) => {
           ASSIGNED USER:
         </label>
         <select
-          className="p-1 bg-white rounded-md"
+          className="p-2 bg-white rounded-md border-2"
           id="user"
           name="user"
           value={userId}
@@ -158,6 +140,17 @@ const EditMessageForm = ({ message, users }) => {
         >
           {options}
         </select>
+        <div className="flex gap-4 mt-4">
+          <button
+            className="btn bg-blue-500 text-white rounded.lg w-[20%] shadow-md shadow-gray-300 rounded-md p-1"
+            title="Save"
+            onClick={onSaveMessageClicked}
+            // disabled={!canSave}
+          >
+            SAVE <FontAwesomeIcon icon={faSave} />
+          </button>
+          {deleteButton}
+        </div>
       </form>
     </>
   )

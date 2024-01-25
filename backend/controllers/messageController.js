@@ -1,5 +1,5 @@
 import Message from '../models/Message.js'
-import Player from '../models/User.js'
+import User from '../models/User.js'
 import asyncHandler from 'express-async-handler'
 
 const getAllMessages = asyncHandler(async (req, res) => {
@@ -10,21 +10,22 @@ const getAllMessages = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: 'No messages found' })
   }
 
-  const messagesWithPlayer = await Promise.all(
+  const messagesWithUser = await Promise.all(
     messages.map(async message => {
-      const player = await Player.findById(message.player).lean().exec()
-      return { ...message, username: player.username }
+      const user = await User.findById(message.user).lean().exec()
+      return { ...message, username: user.username }
     })
   )
 
-  res.json(messagesWithPlayer)
+  res.json(messagesWithUser)
 })
 
 const createNewMessage = asyncHandler(async (req, res) => {
-  const { player, title, content } = req.body
+  const { creator, user, title, content } = req.body
+  console.log('THis is content', content)
 
   // Confirm data
-  if (!player || !title || !content) {
+  if (!user || !title || !content) {
     return res.status(400).json({ message: 'All fields are required' })
   }
 
@@ -35,8 +36,32 @@ const createNewMessage = asyncHandler(async (req, res) => {
     return res.status(409).json({ message: 'Duplicate message title' })
   }
 
-  // Create and store the new player
-  const message = await Message.create({ player, title, content })
+  // Create and store the new user
+  let newThread = []
+  console.log('This is newThread', newThread)
+
+  const message = await Message.create({
+    creator,
+    user,
+    title,
+    thread: [
+      ...newThread,
+      {
+        timeStamp: new Date().toLocaleDateString('en-us', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
+          second: 'numeric',
+        }),
+        data: content,
+      },
+    ],
+    // thread: thread.push(content),
+    content,
+  })
 
   if (message) {
     // Created
@@ -47,10 +72,10 @@ const createNewMessage = asyncHandler(async (req, res) => {
 })
 
 const updateMessage = asyncHandler(async (req, res) => {
-  const { id, player, title, content, read } = req.body
+  const { id, creator, user, title, content, read } = req.body
 
   // Confirm data
-  if (!id || !player || !title || !content || typeof read !== 'boolean') {
+  if (!id || !user || !title || !content || typeof read !== 'boolean') {
     return res.status(400).json({ message: 'All fields are required' })
   }
 
@@ -68,9 +93,24 @@ const updateMessage = asyncHandler(async (req, res) => {
   if (duplicate && duplicate?._id.toString() !== id) {
     return res.status(409).json({ message: 'Duplicate message title' })
   }
-
-  message.player = player
+  message.ceeator = creator
+  message.user = user
   message.title = title
+  message.thread = [
+    ...message.thread,
+    {
+      timeStamp: new Date().toLocaleDateString('en-us', {
+        // weekday: 'long',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        // second: 'numeric',
+      }),
+      data: content,
+    },
+  ]
   message.content = content
   message.read = read
 

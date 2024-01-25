@@ -1,14 +1,41 @@
 import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import useAuth from '../../hooks/useAuth'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faRightFromBracket,
+  faFileCirclePlus,
+  faFilePen,
+  faUserGear,
+  faUserPlus,
+} from '@fortawesome/free-solid-svg-icons'
 
 const Drawer = () => {
+  const { username, isPlayer, isCoach } = useAuth()
+  //
+  const [drawerChecked, setDrawerChecked] = useState(false)
+  //
+  const onChecked = () => {
+    setDrawerChecked(!drawerChecked)
+  }
+
   return (
     <div className="drawer">
-      <input id="my-drawer" type="checkbox" className="drawer-toggle" />
+      {/* <div className={drawerStatus}> */}
+      <input
+        id="my-drawer"
+        type="checkbox"
+        checked={drawerChecked}
+        onChange={onChecked}
+        className="drawer-toggle"
+      />
+
       <div className="drawer-content">
         {/* Page content here */}
         <label
+          // onClick={() => setDrawerOpen()}
           htmlFor="my-drawer"
-          className="btn btn-accent text-white rounded.lg w-[10%] rounded-md p-1 drawer-button"
+          className="btn btn-sm"
         >
           My Menu
         </label>
@@ -22,16 +49,42 @@ const Drawer = () => {
         <ul className="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
           {/* Sidebar content here */}
           <li>
-            <Link to="/dash/messages">View Messages</Link>
+            <Link onClick={onChecked} to="/dash/messages">
+              View Messages
+              <FontAwesomeIcon icon={faFilePen} className="text-gray-400" />
+            </Link>
           </li>
           <li>
-            <Link to="/dash/messages/new">Create Message</Link>
+            <Link onClick={onChecked} to="/dash/messages/new">
+              Create Message
+              <FontAwesomeIcon icon={faFilePen} className="text-gray-400" />
+            </Link>
           </li>
           <li>
-            <Link to="/dash/users">View Users</Link>
+            <Link onClick={onChecked} to="/dash/users">
+              View Users
+              <FontAwesomeIcon icon={faUserPlus} className="text-gray-400" />
+            </Link>
+          </li>
+          {/* {isPlayer ? (
+            <li>
+              <Link onClick={onChecked} to="/dash/users/new">
+                Create Users
+              </Link>
+            </li>
+          ) : (
+            <span></span>
+          )} */}
+          <li>
+            <Link onClick={onChecked} to="/dash/users/new">
+              Create Users
+              <FontAwesomeIcon icon={faUserPlus} className="text-gray-400" />
+            </Link>
           </li>
           <li>
-            <Link to="/dash/users/new">Create Users</Link>
+            <Link onClick={onChecked} to="/dash">
+              My Dashboard
+            </Link>
           </li>
         </ul>
       </div>

@@ -2,7 +2,11 @@ import mongoose from 'mongoose'
 
 const messageSchema = new mongoose.Schema(
   {
-    player: {
+    creator: {
+      type: String,
+      required: true,
+    },
+    user: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: 'Player',
@@ -10,6 +14,10 @@ const messageSchema = new mongoose.Schema(
     title: {
       type: String,
       required: true,
+    },
+    thread: {
+      type: Array,
+      default: [],
     },
     content: {
       type: String,

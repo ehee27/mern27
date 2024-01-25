@@ -52,6 +52,18 @@ export const messagesApiSlice = apiSlice.injectEndpoints({
         { type: 'Message', id: arg.id },
       ],
     }),
+    // updateMessage: builder.mutation({
+    //   query: threadContent => ({
+    //     url: '/api/messages',
+    //     method: 'PATCH',
+    //     body: {
+    //       ...threadContent,
+    //     },
+    //   }),
+    //   invalidatesTags: (result, error, arg) => [
+    //     { type: 'Message', id: arg.id },
+    //   ],
+    // }),
     deleteMessage: builder.mutation({
       query: ({ id }) => ({
         url: `/api/messages`,

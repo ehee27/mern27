@@ -1,4 +1,8 @@
 import { Link } from 'react-router-dom'
+import logo from '../../../public/assets/baseballLogo.png'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faUserPlus } from '@fortawesome/free-solid-svg-icons'
+import useAuth from '../../hooks/useAuth'
 
 const links = [
   { name: 'Home', path: '/' },
@@ -9,10 +13,12 @@ const links = [
 ]
 
 const Navbar = () => {
+  const { username, status } = useAuth()
   return (
-    <div className="flex justify-around bg-zinc-800 shadow-md shadow-gray-200 text-white">
-      <div className="flex">
-        <p>LOGO</p>
+    <div className="flex justify-around items-center bg-zinc-800 shadow-md shadow-gray-200 text-white py-2">
+      <div className="flex items-center gap-4">
+        <img src={logo} className="w-[35px] md:w-[45px]"></img>
+        <p className="text-lg md:text-4xl font-sans font-black">SHOTIME</p>
       </div>
       <div className="flex gap-4">
         {links.map((item, i) => {
@@ -22,6 +28,9 @@ const Navbar = () => {
             </Link>
           )
         })}
+        <Link to="/new-user">
+          <FontAwesomeIcon icon={faUserPlus} />
+        </Link>
       </div>
     </div>
   )

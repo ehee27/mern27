@@ -53,6 +53,14 @@ export const usersApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: (result, error, arg) => [{ type: 'User', id: arg.id }],
     }),
+    uploadPic: builder.mutation({
+      query: picData => ({
+        url: '/api/users/upload',
+        method: 'POST',
+        body: picData,
+      }),
+      invalidatesTags: (result, error, arg) => [{ type: 'User', id: arg.id }],
+    }),
     //-----------------------------------------------------
     deleteUser: builder.mutation({
       query: ({ id }) => ({
@@ -70,6 +78,7 @@ export const {
   useAddNewUserMutation,
   useUpdateUserMutation,
   useDeleteUserMutation,
+  useUploadPicMutation,
 } = usersApiSlice
 
 // returns the query result object

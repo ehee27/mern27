@@ -8,36 +8,55 @@ import DashWelcome from './components/dash/DashWelcome'
 import MessagesList from './features/messages/MessagesList'
 import UserList from './features/users/UserList'
 import NewUserForm from './features/users/NewUserForm'
-import EditUser from './features/users/EditUser'
+import UserProfile from './features/users/UserProfile'
 import NewMessage from './features/messages/NewMessage'
-import EditMessage from './features/messages/EditMessage'
+import MessageDetails from './features/messages/MessageDetails'
 import Prefetch from './features/auth/Prefetch'
+import PersistLogin from './features/auth/PersistLogin'
+import RequireAuth from './features/auth/RequireAuth'
+import { ROLES } from './config/roles'
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
+        {/* ---- PUBLIC ROUTES ---- */}
         <Route index element={<Public />} />
         <Route path="login" element={<Login />} />
-        <Route element={<Prefetch />}>
-          <Route path="dash" element={<DashLayout />}>
-            {/* <Route index element={<Welcome />} /> */}
-            <Route index element={<DashWelcome />} />
-
-            <Route path="users">
-              <Route index element={<UserList />} />
-              <Route path=":id" element={<EditUser />} />
-              <Route path="new" element={<NewUserForm />} />
+        <Route path="register" element={<NewUserForm />} />
+        <Route path="new-user" element={<NewUserForm />} />
+        {/* ------- PROTECTED ROUTES --------- */}
+        <Route element={<PersistLogin />}>
+          <Route
+            element={<RequireAuth allowedRoles={[...Object.values(ROLES)]} />}
+          >
+            <Route element={<Prefetch />}>
+              {/* ------- DASH --------- */}
+              <Route path="dash" element={<DashLayout />}>
+                <Route index element={<DashWelcome />} />
+                <Route
+                  element={
+                    <RequireAuth allowedRoles={[ROLES.Player, ROLES.Coach]} />
+                  }
+                >
+                  {/* ------- USERS --------- */}
+                  <Route path="users">
+                    <Route index element={<UserList />} />
+                    <Route path=":id" element={<UserProfile />} />
+                    {/* <Route path="new" element={<NewUserForm />} /> */}
+                  </Route>
+                </Route>
+                {/* ------- MESSAGES --------- */}
+                <Route path="messages">
+                  <Route index element={<MessagesList />} />
+                  <Route path=":id" element={<MessageDetails />} />
+                  <Route path="new" element={<NewMessage />} />
+                </Route>
+              </Route>
             </Route>
-
-            <Route path="messages">
-              <Route index element={<MessagesList />} />
-              <Route path=":id" element={<EditMessage />} />
-              <Route path="new" element={<NewMessage />} />
-            </Route>
+            {/* ---- End PROTECTED ROUTES / Dash --- */}
           </Route>
         </Route>
-        {/* End Dash */}
       </Route>
     </Routes>
   )
