@@ -6,6 +6,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 const Footer = () => {
   const navigate = useNavigate()
   const { pathname } = useLocation()
+  //
 
   const onGoHomeClicked = () => navigate('/dash')
 
@@ -13,7 +14,7 @@ const Footer = () => {
   if (pathname !== '/dash') {
     goHomeButton = (
       <button
-        className="btn btn-accent text-white rounded.lg w-[5%] rounded-md p-1"
+        className="btn btn-accent text-white rounded-md p-1 w-[50px]"
         onClick={onGoHomeClicked}
       >
         <FontAwesomeIcon icon={faHouse} />
@@ -22,7 +23,7 @@ const Footer = () => {
   }
 
   return (
-    <div className="flex flex-col gap-2 bg-zinc-800 text-white py-2 px-5">
+    <div className="sticky footer inset-x-0 bottom-0 flex flex-col gap-2 bg-zinc-950 text-white py-2 px-5">
       <Link to="/">
         <p className="font-sans">FOOTER</p>
       </Link>

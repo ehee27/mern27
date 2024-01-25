@@ -9,11 +9,19 @@ import verifyJWT from '../middleware/verifyJWT.js'
 
 const router = express.Router()
 
-router.use(verifyJWT)
+// apply our verification
+// router.use(verifyJWT)
 
-router.get('/', getAllMessages)
-router.post('/', createNewMessage)
-router.patch('/', updateMessage)
-router.delete('/', deleteMessage)
+router
+  .route('/')
+  .get(getAllMessages)
+  .post(createNewMessage)
+  .patch(updateMessage)
+  .delete(deleteMessage)
+
+// router.get('/', getAllMessages)
+// router.post('/', createNewMessage)
+// router.patch('/', updateMessage)
+// router.delete('/', deleteMessage)
 
 export default router

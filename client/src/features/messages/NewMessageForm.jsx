@@ -1,19 +1,30 @@
+// message form collects title, text, and assigns the message
+// message created on backend will use "text" for first thread and then push additional "text" entries from the update form
+
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAddNewMessageMutation } from './messagesApiSlice'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSave } from '@fortawesome/free-solid-svg-icons'
+import useAuth from '../../hooks/useAuth'
 
-const NewMessageForm = ({ users }) => {
-  const [addNewMessage, { isLoading, isSuccess, error }] =
-    useAddNewMessageMutation()
-
+const NewMessageForm = ({ users, setTransition }) => {
+  const { username } = useAuth()
   const navigate = useNavigate()
 
+  // STATE
   const [title, setTitle] = useState('')
   const [text, setText] = useState('')
   const [userId, setUserId] = useState(users[0].id)
 
+  // STATE HANDLERS
+  const onTitleChanged = e => setTitle(e.target.value)
+  const onTextChanged = e => setText(e.target.value)
+  const onUserIdChanged = e => setUserId(e.target.value)
+
+  // RTK Actions ---------------------------------------------
+  const [addNewMessage, { isLoading, isSuccess, error }] =
+    useAddNewMessageMutation()
+
+  //
   useEffect(() => {
     if (isSuccess) {
       setTitle('')
@@ -22,20 +33,28 @@ const NewMessageForm = ({ users }) => {
       navigate('/dash/messages')
     }
   }, [isSuccess, navigate])
-
-  const onTitleChanged = e => setTitle(e.target.value)
-  const onTextChanged = e => setText(e.target.value)
-  const onUserIdChanged = e => setUserId(e.target.value)
-
+  //
   const canSave = [title, text, userId].every(Boolean) && !isLoading
 
+  // CREATE MESSAGE -------------------------------------------
   const onSaveMessageClicked = async e => {
     e.preventDefault()
+    setTransition(true)
     if (canSave) {
-      await addNewMessage({ user: userId, title, content: text })
+      setTimeout(() => {
+        setTransition(true)
+        navigate('/dash/messages')
+      }, 1000)
+      await addNewMessage({
+        creator: username,
+        user: userId,
+        title,
+        content: text,
+      })
     }
   }
 
+  // User options -------------------------------------------
   const options = users.map(user => {
     return (
       <option key={user.id} value={user.id}>
@@ -45,35 +64,21 @@ const NewMessageForm = ({ users }) => {
     )
   })
 
-  // const errClass = isError ? "errmsg" : "offscreen"
-  // const validTitleClass = !title ? "form__input--incomplete" : ''
-  // const validTextClass = !text ? "form__input--incomplete" : ''
-
+  // CONTENT
   const content = (
     <>
-      <p>{error?.data?.message}</p>
-
       <form
-        className="flex flex-col gap-2 shadow-md shadow-gray-400 p-3 w-[50%]"
+        className="flex flex-col gap-2 bg-white rounded-lg w-[60%] p-8 text-gray-500"
         onSubmit={onSaveMessageClicked}
       >
         <div>
-          <h2>New Message</h2>
-          <div>
-            <button
-              className="btn bg-blue-500 text-white rounded.lg w-[20%] shadow-md shadow-gray-300 rounded-md p-1"
-              title="Save"
-              disabled={!canSave}
-            >
-              <FontAwesomeIcon icon={faSave} />
-            </button>
-          </div>
+          <div></div>
         </div>
         <label className="text-sm" htmlFor="title">
           Title:
         </label>
         <input
-          className="p-1 bg-white rounded-md"
+          className="p-2 bg-white rounded-md border-2"
           id="title"
           name="title"
           type="text"
@@ -86,7 +91,7 @@ const NewMessageForm = ({ users }) => {
           Content:
         </label>
         <textarea
-          className="p-1 bg-white rounded-md"
+          className="p-1 bg-white rounded-md border-2"
           id="text"
           name="text"
           value={text}
@@ -97,6 +102,7 @@ const NewMessageForm = ({ users }) => {
           ASSIGNED TO:
         </label>
         <select
+          className="p-2 bg-white rounded-md border-2"
           id="username"
           name="username"
           value={userId}
@@ -104,10 +110,16 @@ const NewMessageForm = ({ users }) => {
         >
           {options}
         </select>
+        <button
+          className="btn bg-blue-500 text-white rounded.lg w-[20%] shadow-md shadow-gray-300 rounded-md p-1"
+          title="Save"
+          disabled={!canSave}
+        >
+          Save
+        </button>
       </form>
     </>
   )
-
   return content
 }
 

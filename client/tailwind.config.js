@@ -5,7 +5,7 @@ export default {
   theme: {
     extend: {},
     fontFamily: {
-      sans: ['Fjalla One'],
+      sans: ['Orbitron'],
       // sans2: ['sans-serif', 'Kanit'],
     },
   },

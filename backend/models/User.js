@@ -4,6 +4,10 @@ import mongoose from 'mongoose'
 
 const userSchema = mongoose.Schema(
   {
+    name: {
+      type: String,
+      required: true,
+    },
     username: {
       type: String,
       required: true,
@@ -26,6 +30,53 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       required: false,
       default: true,
+    },
+    position: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    number: {
+      type: Number,
+      required: false,
+    },
+    age: {
+      type: Number,
+      required: false,
+    },
+    height: {
+      type: String,
+      required: false,
+    },
+    weight: {
+      type: Number,
+      required: false,
+    },
+    bats: {
+      type: String,
+      required: false,
+    },
+    throws: {
+      type: String,
+      required: false,
+    },
+    hs: {
+      type: String,
+      required: false,
+    },
+    bio: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    profilePic: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    stats: {
+      type: Array,
+      default: [],
     },
   },
   {

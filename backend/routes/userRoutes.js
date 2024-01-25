@@ -14,21 +14,21 @@ import multer from 'multer'
 
 const router = express.Router()
 
+// apply our verification
 // router.use(verifyJWT)
 
-router.get('/', getAllUsers)
+router
+  .route('/')
+  .get(getAllUsers)
+  .post(createNewUser)
+  .patch(updateUser)
+  .delete(deleteUser)
 
-router.post('/', createNewUser)
-router.patch('/', updateUser)
-router.delete('/', deleteUser)
+// router.get('/', getAllUsers)
 
-// router.post('/auth', authPlayer)
-
-// router.post('/logout', logoutPlayer)
-
-// router.route('/profile').get(getPlayerProfile).put(updatePlayerProfile)
-// .get(protect, getPlayerProfile)
-// .put(protect, updatePlayerProfile)
+// router.post('/', createNewUser)
+// router.patch('/', updateUser)
+// router.delete('/', deleteUser)
 
 //------ UPLOADING FILE ------------------
 // At first we tried implementing this on the controller (might need to do that eventually) but for now we left all logic here
@@ -41,7 +41,7 @@ router.delete('/', deleteUser)
 // storage object
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, '/Users/scottlucas/Desktop/baseballCardz/frontend/src/assets')
+    cb(null, '/Users/scottlucas/Desktop/mern27/client/public/assets')
   },
   filename: function (req, file, cb) {
     // const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
@@ -53,7 +53,8 @@ const storage = multer.diskStorage({
 const upload = multer({ storage })
 
 // upload is called as middleware
-router.post('/profile/upload', upload.single('file'), (req, res) => {
+// router.post('/profile/upload', upload.single('file'), (req, res) => {
+router.post('/upload', upload.single('file'), (req, res) => {
   res.json(req.file)
 })
 

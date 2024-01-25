@@ -12,9 +12,10 @@ const getAllUsers = asyncHandler(async (req, res) => {
 })
 //-------------------------------------------------------
 const createNewUser = asyncHandler(async (req, res) => {
-  const { username, password, email, roles } = req.body
+  const { name, username, password, email, roles } = req.body
   //-------------------------
   if (
+    !name ||
     !username ||
     !password ||
     !email ||
@@ -30,29 +31,62 @@ const createNewUser = asyncHandler(async (req, res) => {
   }
   //-------------------------
   const hashedPassword = await bcrypt.hash(password, 10)
+
   //-------------------------
-  const userObject = { username, password: hashedPassword, email, roles }
-  //-------------------------
-  const user = await User.create(userObject)
+  const user = await User.create({
+    name,
+    username,
+    password: hashedPassword,
+    email,
+    roles,
+    position: '',
+    number: '',
+    age: '',
+    height: '',
+    weight: '',
+    bats: '',
+    throws: '',
+    hs: '',
+    bio: '',
+    profilePic: '',
+    stats: [],
+  })
   if (user) {
-    res.status(201).json({ message: `New Player ${username} created` })
+    res.status(201).json({ message: `New User ${username} created` })
   } else {
-    res.status(400).json({ message: 'Invalid player data' })
+    res.status(400).json({ message: 'Invalid user data' })
   }
 })
 //-------------------------------------------------------
 const updateUser = asyncHandler(async (req, res) => {
-  const { id, username, roles, active, password } = req.body
+  const {
+    id,
+    username,
+    roles,
+    active,
+    password,
+    position,
+    number,
+    age,
+    height,
+    weight,
+    bats,
+    throws,
+    hs,
+    bio,
+    profilePic,
+    stats,
+  } = req.body
   //-------------------------
-  if (
-    !id ||
-    !username ||
-    !Array.isArray(roles) ||
-    !roles.length ||
-    typeof active !== 'boolean'
-  ) {
-    return res.status(400).json({ message: 'All fields are required' })
-  }
+  // if (
+  //   !id ||
+  //   !username ||
+  //   !Array.isArray(roles) ||
+  //   !roles.length ||
+  //   typeof active !== 'boolean'
+  // ) {
+  //   return res.status(400).json({ message: 'All fields are required' })
+  // }
   //-------------------------
   const user = await User.findById(id).exec()
   if (!user) {
@@ -62,9 +96,21 @@ const updateUser = asyncHandler(async (req, res) => {
   if (duplicate && duplicate?._id.toString() !== id) {
     return res.status(409).json({ message: 'Duplicate username' })
   }
-  user.username = username
+  // user.username = username
   user.roles = roles
   user.active = active
+  user.position = position || user.position
+  user.number = number || user.number
+  user.age = age || user.age
+  user.height = height || user.height
+  user.weight = weight || user.weight
+  user.bats = bats || user.bats
+  user.throws = throws || user.throws
+  user.hs = hs || user.hs
+  user.bio = bio || user.bio
+  user.profilePic = profilePic || user.profilePic
+  user.stats = stats || user.stats
+  //
   if (password) {
     user.password = await bcrypt.hash(password, 10)
   }
